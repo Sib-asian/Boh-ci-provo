@@ -1,0 +1,102 @@
+[
+  {
+    "home_team": "Inter Milan",
+    "away_team": "AC Milan",
+    "league": "Serie A",
+    "date": "2026-03-20",
+    "asian_line": {
+      "handicap_open": -0.75,
+      "handicap_close": -1.0,
+      "odds_home_open": 1.93,
+      "odds_away_open": 1.97,
+      "odds_home_close": 1.75,
+      "odds_away_close": 2.15,
+      "total_open": 2.75,
+      "total_close": 2.75,
+      "odds_over_open": 1.95,
+      "odds_under_open": 1.95,
+      "odds_over_close": 1.78,
+      "odds_under_close": 2.12
+    }
+  },
+  {
+    "home_team": "Manchester City",
+    "away_team": "Liverpool",
+    "league": "Premier League",
+    "date": "2026-03-21",
+    "asian_line": {
+      "handicap_open": -0.5,
+      "handicap_close": -0.25,
+      "odds_home_open": 2.10,
+      "odds_away_open": 1.80,
+      "odds_home_close": 2.25,
+      "odds_away_close": 1.72,
+      "total_open": 3.0,
+      "total_close": 3.25,
+      "odds_over_open": 1.90,
+      "odds_under_open": 2.00,
+      "odds_over_close": 2.12,
+      "odds_under_close": 1.76
+    }
+  },
+  {
+    "home_team": "Real Madrid",
+    "away_team": "Bayern Munich",
+    "league": "Champions League",
+    "date": "2026-03-22",
+    "asian_line": {
+      "handicap_open": -0.25,
+      "handicap_close": 0.0,
+      "odds_home_open": 2.05,
+      "odds_away_open": 1.85,
+      "odds_home_close": 2.20,
+      "odds_away_close": 1.74,
+      "total_open": 2.75,
+      "total_close": 2.5,
+      "odds_over_open": 1.88,
+      "odds_under_open": 2.02,
+      "odds_over_close": 2.10,
+      "odds_under_close": 1.78
+    }
+  },
+  {
+    "home_team": "Juventus",
+    "away_team": "Napoli",
+    "league": "Serie A",
+    "date": "2026-03-22",
+    "asian_line": {
+      "handicap_open": 0.0,
+      "handicap_close": -0.25,
+      "odds_home_open": 1.80,
+      "odds_away_open": 2.10,
+      "odds_home_close": 1.72,
+      "odds_away_close": 2.22,
+      "total_open": 2.5,
+      "total_close": 2.75,
+      "odds_over_open": 1.78,
+      "odds_under_open": 2.12,
+      "odds_over_close": 1.72,
+      "odds_under_close": 2.20
+    }
+  },
+  {
+    "home_team": "Arsenal",
+    "away_team": "Chelsea",
+    "league": "Premier League",
+    "date": "2026-03-23",
+    "asian_line": {
+      "handicap_open": -0.5,
+      "handicap_close": -0.75,
+      "odds_home_open": 1.92,
+      "odds_away_open": 1.98,
+      "odds_home_close": 1.78,
+      "odds_away_close": 2.12,
+      "total_open": 3.0,
+      "total_close": 3.0,
+      "odds_over_open": 1.98,
+      "odds_under_open": 1.92,
+      "odds_over_close": 1.80,
+      "odds_under_close": 2.10
+    }
+  }
+]
