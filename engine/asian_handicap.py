@@ -34,12 +34,8 @@ def calculate_ah_result(
     remainder = abs(handicap) % 0.5
     if abs(remainder - 0.25) < 1e-9:
         # Quarter line: split su due linee adiacenti
-        if handicap > 0:
-            line_low = handicap - 0.25
-            line_high = handicap + 0.25
-        else:
-            line_low = handicap - 0.25
-            line_high = handicap + 0.25
+        line_low = handicap - 0.25
+        line_high = handicap + 0.25
 
         result_low = _ah_single_line(home_goals, away_goals, line_low)
         result_high = _ah_single_line(home_goals, away_goals, line_high)

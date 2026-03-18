@@ -250,7 +250,7 @@ def generate_predictions(match: Match) -> list[Prediction]:
         # Score composito
         sharp_norm = sharp_conf  # già 0-1
         lm_norm = lm_score / 100.0
-        composite = w_edge * 0.40 + lm_norm * 0.30 + sharp_norm * 0.20 + 0.10
+        composite = w_edge * 0.40 + lm_norm * 0.30 + sharp_norm * 0.20 + w_edge * 0.10
 
         # Confidenza: score composito scalato a 0-100
         confidence = min(composite * 100.0, 100.0)
@@ -259,11 +259,15 @@ def generate_predictions(match: Match) -> list[Prediction]:
         kelly = kelly_criterion(w_edge, m["odds_close"])
 
         # PUNTA = scommessa standard su exchange
-        # BANCA = lay bet su exchange
-        recommendation = "PUNTA"
+        # BANCA = lay bet su exchange (quando il segnale sharp è sul lato opposto)
+        opposite_sides = {"HOME": "AWAY", "AWAY": "HOME", "OVER": "UNDER", "UNDER": "OVER"}
+        side = m["side"]
+        if sharp_side == opposite_sides.get(side, "") and sharp_conf >= config.SHARP_CONFIDENCE_THRESHOLD:
+            recommendation = "BANCA"
+        else:
+            recommendation = "PUNTA"
 
         # Reasoning
-        side = m["side"]
         if side in ("HOME", "AWAY"):
             reasoning = _build_reasoning_ah(
                 side=side,
