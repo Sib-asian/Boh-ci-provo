@@ -76,24 +76,27 @@ def remove_margin_shin(odds_home: float, odds_away: float) -> tuple[float, float
     p1_raw = 1.0 / odds_home
     p2_raw = 1.0 / odds_away
     sum_inv = p1_raw + p2_raw
-    n = 2  # numero di esiti
 
-    # Stima del parametro z (proporzione insider)
-    diff_sq_sum = ((p1_raw - 1.0 / sum_inv) ** 2 + (p2_raw - 1.0 / sum_inv) ** 2) * n
-    discriminant = 1.0 - diff_sq_sum
-    if discriminant < 0:
-        discriminant = 0.0
-    z = 1.0 - math.sqrt(discriminant)
-    z = max(0.0, min(z, 0.5))  # Clamp z tra 0 e 0.5
+    # Usa brentq per trovare z in modo preciso
+    def shin_equation(z: float) -> float:
+        if abs(1 - z) < 1e-12:
+            return 1e12  # valore molto grande per indicare che z=1 non è valido
+        p1_shin = (math.sqrt(z**2 + 4*(1-z)*(p1_raw**2)/sum_inv) - z) / (2*(1-z))
+        p2_shin = (math.sqrt(z**2 + 4*(1-z)*(p2_raw**2)/sum_inv) - z) / (2*(1-z))
+        return p1_shin + p2_shin - 1.0
 
-    # Correzione Shin
+    try:
+        z = brentq(shin_equation, 0.0, 0.5 - 1e-9)
+    except ValueError:
+        z = 0.0
+
     def shin_prob(p_raw: float) -> float:
-        return (math.sqrt(z ** 2 + 4 * (1 - z) * (p_raw ** 2) / sum_inv) - z) / (2 * (1 - z))
+        if abs(1 - z) < 1e-12:
+            return p_raw / sum_inv
+        return (math.sqrt(z**2 + 4*(1-z)*(p_raw**2)/sum_inv) - z) / (2*(1-z))
 
     prob_home = shin_prob(p1_raw)
     prob_away = shin_prob(p2_raw)
-
-    # Normalizzazione
     total = prob_home + prob_away
     return prob_home / total, prob_away / total
 

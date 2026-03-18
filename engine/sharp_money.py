@@ -25,21 +25,18 @@ def detect_sharp_side(line: AsianLine) -> str:
     steam_over = is_steam_move(line.odds_over_open, line.odds_over_close)
     steam_under = is_steam_move(line.odds_under_open, line.odds_under_close)
 
-    # Reverse Line Movement (RLM):
-    # Se la linea si muove verso HOME ma le odds HOME si accorciano molto
-    # significa che i bookmaker reagiscono a scommesse sull'HOME (sharp)
     if ah_move["direction"] == "home":
-        # Linea verso casa: ci aspettiamo odds home più corte
+        # Azione normale: sharp ha puntato HOME → linea si muove verso HOME + odds home si accorciano
         if steam_home and line.odds_home_close < line.odds_home_open:
             return "HOME"
-        # RLM: linea verso casa ma odds away si accorciano = sharp su AWAY
+        # RLM: linea verso HOME ma odds AWAY si accorciano → sharp su AWAY (contrario alla linea)
         if steam_away and line.odds_away_close < line.odds_away_open:
             return "AWAY"
     elif ah_move["direction"] == "away":
-        # Linea verso trasferta: ci aspettiamo odds away più corte
+        # Azione normale: sharp ha puntato AWAY → linea si muove verso AWAY + odds away si accorciano
         if steam_away and line.odds_away_close < line.odds_away_open:
             return "AWAY"
-        # RLM: linea verso trasferta ma odds home si accorciano = sharp su HOME
+        # RLM: linea verso AWAY ma odds HOME si accorciano → sharp su HOME (contrario alla linea)
         if steam_home and line.odds_home_close < line.odds_home_open:
             return "HOME"
 

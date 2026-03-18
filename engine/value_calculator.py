@@ -38,7 +38,8 @@ def kelly_criterion(edge: float, odds: float) -> float:
     if edge <= 0 or odds <= 1:
         return 0.0
     kelly_full = edge / (odds - 1.0)
-    return kelly_full * config.KELLY_FRACTION
+    kelly_fractional = kelly_full * config.KELLY_FRACTION
+    return min(kelly_fractional, 0.25)  # cap massimo al 25% del bankroll
 
 
 def weighted_edge(
