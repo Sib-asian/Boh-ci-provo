@@ -7,7 +7,7 @@ import streamlit as st
 
 import config
 from data.models import AsianLine, Match
-from data.loader import load_matches
+from data.loader import load_matches, asian_line_from_dict, match_from_dict
 from engine.predictor import generate_predictions
 
 st.set_page_config(
@@ -331,31 +331,14 @@ with tab_batch:
                 raw_data = json.load(uploaded_file)
                 matches_batch: list[Match] = []
                 for item in raw_data:
-                    al = item["asian_line"]
-                    h_open, h_close = _apply_nowgoal(al["handicap_open"], al["handicap_close"])
-                    asian_line = AsianLine(
-                        handicap_open=h_open,
-                        handicap_close=h_close,
-                        odds_home_open=al["odds_home_open"],
-                        odds_away_open=al["odds_away_open"],
-                        odds_home_close=al["odds_home_close"],
-                        odds_away_close=al["odds_away_close"],
-                        total_open=al["total_open"],
-                        total_close=al["total_close"],
-                        odds_over_open=al["odds_over_open"],
-                        odds_under_open=al["odds_under_open"],
-                        odds_over_close=al["odds_over_close"],
-                        odds_under_close=al["odds_under_close"],
+                    al_dict = item["asian_line"]
+                    h_open, h_close = _apply_nowgoal(
+                        al_dict["handicap_open"], al_dict["handicap_close"]
                     )
-                    matches_batch.append(
-                        Match(
-                            home_team=item["home_team"],
-                            away_team=item["away_team"],
-                            league=item["league"],
-                            date=item["date"],
-                            asian_line=asian_line,
-                        )
-                    )
+                    matches_batch.append(match_from_dict({
+                        **item,
+                        "asian_line": {**al_dict, "handicap_open": h_open, "handicap_close": h_close},
+                    }))
                 _render_batch_results(matches_batch)
             except (KeyError, json.JSONDecodeError) as e:
                 st.error(f"Errore nel parsing del file JSON: {e}")

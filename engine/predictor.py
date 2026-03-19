@@ -20,6 +20,9 @@ def _get_fair_probs(
 ) -> tuple[float, float]:
     """Seleziona il metodo di rimozione margine e restituisce probabilità fair.
 
+    Questa funzione è progettata esclusivamente per mercati a 2 esiti
+    (HOME/AWAY o OVER/UNDER) e non supporta mercati a 3 vie (1X2).
+
     Args:
         odds_home: Quota casa.
         odds_away: Quota trasferta.
@@ -41,7 +44,7 @@ def _blend_ah_total_probs(
     prob_away: float,
     prob_over: float,
     prob_under: float,
-    total_weight: float = 0.15,
+    total_weight: float = config.BLEND_AH_TOTAL_WEIGHT,
 ) -> tuple[float, float]:
     """Raffina le probabilità AH incorporando un segnale dal mercato Total.
 
@@ -254,12 +257,20 @@ def generate_predictions(match: Match) -> list[Prediction]:
     )
 
     # --- Probabilità fair Total ---
-    prob_over_open, prob_under_open = poisson_total_probs(
-        line.odds_over_open, line.odds_under_open, line.total_open
-    )
-    prob_over_close, prob_under_close = poisson_total_probs(
-        line.odds_over_close, line.odds_under_close, line.total_close
-    )
+    if config.POISSON_ENABLED:
+        prob_over_open, prob_under_open = poisson_total_probs(
+            line.odds_over_open, line.odds_under_open, line.total_open
+        )
+        prob_over_close, prob_under_close = poisson_total_probs(
+            line.odds_over_close, line.odds_under_close, line.total_close
+        )
+    else:
+        prob_over_open, prob_under_open = _get_fair_probs(
+            line.odds_over_open, line.odds_under_open
+        )
+        prob_over_close, prob_under_close = _get_fair_probs(
+            line.odds_over_close, line.odds_under_close
+        )
 
     # Convergenza AH + Total per probabilità di chiusura
     prob_home_close, prob_away_close = _blend_ah_total_probs(

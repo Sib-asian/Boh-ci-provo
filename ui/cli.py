@@ -33,7 +33,7 @@ def show_banner() -> None:
     banner = Text()
     banner.append("⚽  SISTEMA PRONOSTICI CALCISTICI  ⚽\n", style="bold yellow")
     banner.append("Asian Handicap & Asian Total — Exchange Edition\n", style="cyan")
-    banner.append("Basato su: Power Method | Shin Method | Sharp Money | Steam Move", style="dim")
+    banner.append("Basato su: Power Method | Shin Method | Newton-Raphson | Poisson | Sharp Money | Steam Move", style="dim")
     console.print(Panel(banner, box=box.DOUBLE, border_style="yellow", padding=(1, 4)))
 
 
