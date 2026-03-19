@@ -37,6 +37,8 @@ def handicap_movement(open_h: float, close_h: float) -> dict:
 def odds_movement(open_odds: float, close_odds: float) -> dict:
     """Analizza il movimento delle odds tra apertura e chiusura.
 
+    # NOTE: utility pubblica disponibile per uso esterno e analisi avanzata.
+
     Args:
         open_odds: Quota di apertura.
         close_odds: Quota di chiusura.

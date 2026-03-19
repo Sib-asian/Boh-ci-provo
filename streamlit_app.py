@@ -72,6 +72,12 @@ def _apply_nowgoal(handicap_open: float, handicap_close: float) -> tuple[float, 
     return handicap_open, handicap_close
 
 
+@st.cache_data
+def _load_matches_cached(path: str):
+    """Carica le partite da file con caching per evitare riletture inutili del disco."""
+    return load_matches(path)
+
+
 def _apply_config() -> None:
     """Aggiorna i valori di config con quelli scelti in sidebar."""
     config.MARGIN_REMOVAL_METHOD = margin_method
@@ -429,7 +435,7 @@ with tab_example:
         _apply_config()
         try:
             sample_path = "data/matches_sample.json"
-            matches_sample = load_matches(sample_path)
+            matches_sample = _load_matches_cached(sample_path)
             if nowgoal_mode:
                 for m in matches_sample:
                     al = m.asian_line

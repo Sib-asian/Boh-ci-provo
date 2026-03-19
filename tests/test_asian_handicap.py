@@ -156,3 +156,17 @@ class TestAnalyzeAHLine:
         result = analyze_ah_line(line)
         assert result["handicap_moved"] is False
         assert result["handicap_direction"] == "none"
+
+
+class TestSideInvalido:
+    """Test negativi per side non valido."""
+
+    def test_side_invalido_solleva_value_error(self):
+        """Side non valido deve sollevare ValueError con messaggio che contiene 'HOME'."""
+        with pytest.raises(ValueError, match="HOME"):
+            calculate_ah_result(2, 1, -0.5, "INVALID")
+
+    def test_side_vuoto_solleva_value_error(self):
+        """Side vuoto deve sollevare ValueError."""
+        with pytest.raises(ValueError):
+            calculate_ah_result(2, 1, -0.5, "")

@@ -72,6 +72,8 @@ def expected_value_ah(
 
     Formula: EV = (prob_win * (odds-1)) + (prob_push * 0) - (prob_lose * 1)
 
+    # NOTE: utilizzata dai test e disponibile per uso esterno.
+
     Args:
         prob_win: Probabilità di vincita piena.
         prob_push: Probabilità di push (rimborso).
