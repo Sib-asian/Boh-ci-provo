@@ -141,3 +141,17 @@ class TestAnalyzeTotalLine:
         result = analyze_total_line(line)
         assert result["total_moved"] is True
         assert result["total_direction"] == "under"
+
+
+class TestSideInvalido:
+    """Test negativi per side non valido."""
+
+    def test_side_invalido_solleva_value_error(self):
+        """Side non valido deve sollevare ValueError con messaggio che contiene 'OVER'."""
+        with pytest.raises(ValueError, match="OVER"):
+            calculate_total_result(3, 2.5, "INVALID")
+
+    def test_side_vuoto_solleva_value_error(self):
+        """Side vuoto deve sollevare ValueError."""
+        with pytest.raises(ValueError):
+            calculate_total_result(3, 2.5, "")

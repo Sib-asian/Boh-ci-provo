@@ -98,5 +98,25 @@
       "odds_over_close": 1.80,
       "odds_under_close": 2.10
     }
+  },
+  {
+    "home_team": "Torino",
+    "away_team": "Bologna",
+    "league": "Serie A",
+    "date": "2026-03-22",
+    "asian_line": {
+      "handicap_open": 0.0,
+      "handicap_close": 0.0,
+      "odds_home_open": 1.95,
+      "odds_away_open": 1.95,
+      "odds_home_close": 1.95,
+      "odds_away_close": 1.95,
+      "total_open": 2.5,
+      "total_close": 2.5,
+      "odds_over_open": 1.90,
+      "odds_under_open": 2.00,
+      "odds_over_close": 1.90,
+      "odds_under_close": 2.00
+    }
   }
 ]

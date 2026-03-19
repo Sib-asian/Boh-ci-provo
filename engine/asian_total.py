@@ -70,6 +70,8 @@ def expected_value_total(
 
     Formula: EV = (prob_win * (odds-1)) + (prob_push * 0) - (prob_lose * 1)
 
+    # NOTE: utilizzata dai test e disponibile per uso esterno.
+
     Args:
         prob_over: Probabilità Over.
         prob_push: Probabilità push (rimborso).

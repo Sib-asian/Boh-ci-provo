@@ -1,7 +1,6 @@
 """Formattazione output per la CLI con Rich."""
 
 from rich.table import Table
-from rich.panel import Panel
 from rich.text import Text
 from rich import box
 
@@ -38,7 +37,12 @@ def format_lines_table(match: Match) -> Table:
 
     # AH Home
     ah_home_moved = abs(line.handicap_close - line.handicap_open) > 1e-9
-    ah_move_str = f"{'← ' if ah_home_moved else ''}{line.handicap_close:+.2f}" if ah_home_moved else "—"
+    if ah_home_moved:
+        # ↓ = handicap si abbassa (linea favorisce più la casa), ↑ = linea si alza
+        ah_arrow = "↓" if line.handicap_close < line.handicap_open else "↑"
+        ah_move_str = f"{ah_arrow} {line.handicap_close:+.2f}"
+    else:
+        ah_move_str = "—"
 
     table.add_row(
         "AH Casa",
@@ -57,7 +61,12 @@ def format_lines_table(match: Match) -> Table:
 
     # Total
     total_moved = abs(line.total_close - line.total_open) > 1e-9
-    total_move_str = f"← {line.total_close:.2f}" if total_moved else "—"
+    if total_moved:
+        # ↑ = linea alzata (più gol attesi), ↓ = linea abbassata
+        total_arrow = "↑" if line.total_close > line.total_open else "↓"
+        total_move_str = f"{total_arrow} {line.total_close:.2f}"
+    else:
+        total_move_str = "—"
 
     table.add_row(
         "Total Over",
