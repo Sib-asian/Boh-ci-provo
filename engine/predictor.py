@@ -6,6 +6,7 @@ from engine.probability_engine import (
     remove_margin_power,
     remove_margin_shin,
     remove_margin_additive,
+    poisson_total_probs,
 )
 from engine.asian_handicap import analyze_ah_line
 from engine.asian_total import analyze_total_line
@@ -33,6 +34,82 @@ def _get_fair_probs(
         return remove_margin_additive(odds_home, odds_away)
     else:
         return remove_margin_power(odds_home, odds_away)
+
+
+def _blend_ah_total_probs(
+    prob_home: float,
+    prob_away: float,
+    prob_over: float,
+    prob_under: float,
+    total_weight: float = 0.15,
+) -> tuple[float, float]:
+    """Raffina le probabilità AH incorporando un segnale dal mercato Total.
+
+    Il mercato Total fornisce informazioni sull'intensità della partita
+    che può correggere leggermente le probabilità AH.
+
+    Args:
+        prob_home: Probabilità fair home (da AH).
+        prob_away: Probabilità fair away (da AH).
+        prob_over: Probabilità fair over (da Total).
+        prob_under: Probabilità fair under (da Total).
+        total_weight: Peso del segnale Total (default 0.15 = 15%).
+
+    Returns:
+        Tuple (prob_home_blended, prob_away_blended) normalizzate a 1.
+    """
+    # Il mercato Total alto (over probabile) tende a favorire la squadra più forte
+    # Il segnale è: se prob_over è molto alta, c'è più incertezza sul risultato
+    # Questo moderatamente "appiattisce" le probabilità verso 0.5
+    total_signal = prob_over - 0.5  # positivo = over probabile, negativo = under
+
+    # Aggiustamento: partite ad alto punteggio atteso tendono ad avere esiti più incerti
+    # quindi spostiamo leggermente le probabilità verso l'equilibrio.
+    # Il fattore 0.1 riduce il segnale Total al 10% per evitare distorsioni eccessive.
+    adjustment = total_signal * total_weight * 0.1
+
+    prob_home_adj = prob_home - adjustment
+    prob_away_adj = prob_away + adjustment
+
+    # Normalizzazione per garantire che sommino a 1
+    total = prob_home_adj + prob_away_adj
+    if total > 0:
+        return prob_home_adj / total, prob_away_adj / total
+    return prob_home, prob_away
+
+
+def _adaptive_composite(
+    w_edge: float,
+    lm_norm: float,
+    sharp_norm: float,
+    side: str,
+    handicap_delta: float,
+    total_delta: float,
+) -> float:
+    """Score composito con pesi adattivi basati sul tipo di mercato."""
+    abs_hcap = abs(handicap_delta)
+    abs_total = abs(total_delta)
+
+    if side in ("HOME", "AWAY"):
+        if abs_hcap >= 0.50:
+            # Movimento AH forte: peso LM più alto
+            w1, w2, w3 = 0.40, 0.40, 0.20
+        elif abs_hcap >= 0.25:
+            # Movimento AH normale
+            w1, w2, w3 = 0.45, 0.30, 0.25
+        else:
+            # Nessun movimento AH significativo: edge domina
+            w1, w2, w3 = 0.55, 0.20, 0.25
+    else:  # OVER / UNDER
+        if abs_total >= 0.50:
+            # Linea Total molto mossa: peso LM più alto
+            w1, w2, w3 = 0.35, 0.45, 0.20
+        elif abs_total >= 0.25:
+            w1, w2, w3 = 0.40, 0.35, 0.25
+        else:
+            w1, w2, w3 = 0.50, 0.25, 0.25
+
+    return w_edge * w1 + lm_norm * w2 + sharp_norm * w3
 
 
 def _build_reasoning_ah(
@@ -177,11 +254,16 @@ def generate_predictions(match: Match) -> list[Prediction]:
     )
 
     # --- Probabilità fair Total ---
-    prob_over_open, prob_under_open = _get_fair_probs(
-        line.odds_over_open, line.odds_under_open
+    prob_over_open, prob_under_open = poisson_total_probs(
+        line.odds_over_open, line.odds_under_open, line.total_open
     )
-    prob_over_close, prob_under_close = _get_fair_probs(
-        line.odds_over_close, line.odds_under_close
+    prob_over_close, prob_under_close = poisson_total_probs(
+        line.odds_over_close, line.odds_under_close, line.total_close
+    )
+
+    # Convergenza AH + Total per probabilità di chiusura
+    prob_home_close, prob_away_close = _blend_ah_total_probs(
+        prob_home_close, prob_away_close, prob_over_close, prob_under_close
     )
 
     # --- Analisi movimenti ---
@@ -241,16 +323,19 @@ def generate_predictions(match: Match) -> list[Prediction]:
         # edge_open = valore stimato al momento dell'apertura
         # edge_close = valore offerto al momento della chiusura (price da battere)
         edge_open = calculate_edge(m["prob_open"], m["odds_open"])
-        edge_close = calculate_edge(m["prob_open"], m["odds_close"])
+        edge_close = calculate_edge(m["prob_close"], m["odds_close"])
         w_edge = weighted_edge(edge_open, edge_close)
 
         if w_edge <= config.MIN_EDGE_THRESHOLD:
             continue
 
-        # Score composito
+        # Score composito con pesi adattivi per tipo di mercato
+        side = m["side"]
         sharp_norm = sharp_conf  # già 0-1
         lm_norm = lm_score / 100.0
-        composite = w_edge * 0.40 + lm_norm * 0.30 + sharp_norm * 0.20 + w_edge * 0.10
+        ah_delta = ah_analysis.get("handicap_delta", 0.0)
+        total_delta_val = total_analysis.get("total_delta", 0.0)
+        composite = _adaptive_composite(w_edge, lm_norm, sharp_norm, side, ah_delta, total_delta_val)
 
         # Confidenza: score composito scalato a 0-100
         confidence = min(composite * 100.0, 100.0)
@@ -261,7 +346,6 @@ def generate_predictions(match: Match) -> list[Prediction]:
         # PUNTA = scommessa standard su exchange
         # BANCA = lay bet su exchange (quando il segnale sharp è sul lato opposto)
         opposite_sides = {"HOME": "AWAY", "AWAY": "HOME", "OVER": "UNDER", "UNDER": "OVER"}
-        side = m["side"]
         if sharp_side == opposite_sides.get(side, "") and sharp_conf >= config.SHARP_CONFIDENCE_THRESHOLD:
             recommendation = "BANCA"
         else:
