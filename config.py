@@ -1,5 +1,5 @@
 # Configurazione globale del sistema di pronostici
-# I valori possono essere sovrascritt tramite variabili d'ambiente.
+# I valori possono essere sovrascritti tramite variabili d'ambiente.
 import os
 
 MIN_EDGE_THRESHOLD = float(os.environ.get("MIN_EDGE_THRESHOLD", "0.02"))
