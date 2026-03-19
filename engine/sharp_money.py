@@ -107,7 +107,13 @@ def sharp_confidence_score(line: AsianLine) -> float:
     # Indicatore 1: Movimento significativo della linea AH
     ah_move = handicap_movement(line.handicap_open, line.handicap_close)
     if ah_move["significant"]:
-        score += 0.30
+        entita = ah_move["entita"]
+        if entita >= 0.75:
+            score += 0.45  # movimento molto forte
+        elif entita >= 0.50:
+            score += 0.38  # movimento forte
+        else:
+            score += 0.30  # movimento standard (≥0.25)
         indicators += 1
 
     # Indicatore 2: Steam move nelle odds AH
@@ -125,8 +131,12 @@ def sharp_confidence_score(line: AsianLine) -> float:
         indicators += 1
 
     # Indicatore 4: Movimento della linea Total
-    if abs(line.total_close - line.total_open) >= 0.25:
-        score += 0.15
+    total_delta = abs(line.total_close - line.total_open)
+    if total_delta >= 0.50:
+        score += 0.20  # movimento molto forte
+        indicators += 1
+    elif total_delta >= 0.25:
+        score += 0.15  # movimento standard
         indicators += 1
 
     # Indicatore 5: Convergenza segnali (bonus per coerenza)
