@@ -1,5 +1,7 @@
 """Calcolo del valore atteso, Kelly Criterion ed edge ponderato."""
 
+import warnings
+
 import config
 
 
@@ -62,4 +64,10 @@ def weighted_edge(
     Returns:
         Edge ponderato combinato.
     """
+    if abs(weight_open + weight_close - 1.0) > 1e-6:
+        warnings.warn(
+            f"I pesi non sommano a 1.0: weight_open={weight_open}, weight_close={weight_close}. "
+            "Il risultato potrebbe non essere un edge ponderato corretto.",
+            stacklevel=2,
+        )
     return edge_open * weight_open + edge_close * weight_close

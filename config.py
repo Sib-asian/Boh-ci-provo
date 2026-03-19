@@ -6,3 +6,5 @@ WEIGHT_CLOSE = 0.65              # Peso delle odds di chiusura
 KELLY_FRACTION = 0.25            # Frazione Kelly (Kelly frazionario al 25%)
 SHARP_CONFIDENCE_THRESHOLD = 0.5 # Soglia di confidenza per segnali sharp
 MARGIN_REMOVAL_METHOD = "power"  # Metodo di rimozione margine: "power", "shin", "additive"
+BLEND_AH_TOTAL_WEIGHT = 0.15     # Peso del segnale Total nel blend con AH
+POISSON_ENABLED = True           # Abilita il calcolo Poisson per le probabilità Total

@@ -1,7 +1,6 @@
 """Modelli dati per il sistema di pronostici calcistici."""
 
-from dataclasses import dataclass, field
-from typing import Optional
+from dataclasses import dataclass
 
 
 @dataclass
@@ -20,6 +19,19 @@ class AsianLine:
     odds_under_open: float
     odds_over_close: float
     odds_under_close: float
+
+    def __post_init__(self) -> None:
+        """Valida che tutte le odds siano > 1.0."""
+        odds_fields = [
+            "odds_home_open", "odds_away_open", "odds_home_close", "odds_away_close",
+            "odds_over_open", "odds_under_open", "odds_over_close", "odds_under_close",
+        ]
+        for field_name in odds_fields:
+            value = getattr(self, field_name)
+            if value <= 1.0:
+                raise ValueError(
+                    f"La quota '{field_name}' deve essere > 1.0, ricevuto: {value}"
+                )
 
 
 @dataclass
